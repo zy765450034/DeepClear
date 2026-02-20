@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>隐私政策 – DeepClear</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0a0a0f; --card: #1a1a26; --border: rgba(255,255,255,0.08);
+      --accent: #6c63ff; --text: #e8e8f0; --muted: #8888a8; --radius: 16px;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB",
+                   "SF Pro Display", "Segoe UI", sans-serif;
+      background: var(--bg); color: var(--text); line-height: 1.8;
+    }
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; gap: 10px;
+      padding: 0 5%; height: 64px;
+      background: rgba(10,10,15,0.75); backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+    }
+    nav img { width: 28px; border-radius: 7px; }
+    nav .brand { font-weight: 700; font-size: 16px; color: var(--text); text-decoration: none; }
+    nav .right { margin-left: auto; display: flex; align-items: center; gap: 16px; }
+    nav .back { color: var(--muted); text-decoration: none; font-size: 14px; }
+    nav .back:hover { color: var(--text); }
+    .lang-switch {
+      display: flex; gap: 2px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--border);
+      border-radius: 100px; padding: 3px;
+    }
+    .lang-switch a {
+      padding: 4px 12px; border-radius: 100px;
+      font-size: 12px; font-weight: 600; text-decoration: none;
+      color: var(--muted); transition: all 0.2s;
+    }
+    .lang-switch a.active { background: var(--accent); color: #fff; }
+    .lang-switch a:not(.active):hover { color: var(--text); }
+
+    main { max-width: 720px; margin: 0 auto; padding: 112px 24px 80px; }
+    h1 { font-size: 2.2rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 8px; }
+    .date { color: var(--muted); font-size: 14px; margin-bottom: 48px; }
+    h2 { font-size: 1.15rem; font-weight: 700; margin: 40px 0 10px; color: #c5c2ff; }
+    p { color: var(--muted); margin-bottom: 12px; font-size: 0.97rem; }
+    ul { color: var(--muted); padding-left: 20px; font-size: 0.97rem; }
+    ul li { margin-bottom: 6px; }
+    a { color: var(--accent); }
+    footer { text-align: center; padding: 40px 0 60px; color: var(--muted); font-size: 13px; }
+  </style>
+</head>
+<body>
+<nav>
+  <img src="icon.png" alt="图标" />
+  <a class="brand" href="index-zh.html">DeepClear</a>
+  <div class="right">
+    <a class="back" href="index-zh.html">← 返回首页</a>
+    <div class="lang-switch">
+      <a href="privacy.html">EN</a>
+      <a href="privacy-zh.html" class="active">中文</a>
+    </div>
+  </div>
+</nav>
+
+<main>
+  <h1>隐私政策</h1>
+  <p class="date">最后更新：2025 年 1 月 1 日</p>
+
+  <p>
+    本隐私政策描述了 DeepClear（"我们"）在您使用我们的 macOS 应用程序（"本应用"）时如何处理信息。我们致力于保护您的隐私。简而言之：<strong>DeepClear 不收集任何个人数据。</strong>
+  </p>
+
+  <h2>1. 我们不收集的信息</h2>
+  <p>DeepClear 不会收集、存储、传输或共享以下任何内容：</p>
+  <ul>
+    <li>您设备上的文件名、文件夹名或文件路径</li>
+    <li>文件大小或元数据</li>
+    <li>个人身份信息（姓名、邮箱、Apple ID 等）</li>
+    <li>设备标识符、IP 地址或位置数据</li>
+    <li>使用分析数据或发送至第三方服务器的崩溃报告</li>
+  </ul>
+
+  <h2>2. 本地文件系统访问</h2>
+  <p>
+    本应用仅请求访问您通过 macOS 文件选择器明确选定的文件夹。该权限仅用于在应用内读取文件和目录的元数据（名称、大小、修改日期）并加以展示。任何数据都不会读取您所选文件夹之外的内容，也不会向磁盘写入数据，除非您主动删除某个文件（此操作会将其移入废纸篓）。
+  </p>
+
+  <h2>3. 管理员权限</h2>
+  <p>
+    当删除受 macOS 沙盒保护的文件或文件夹时，本应用可能会通过标准 macOS 系统提示请求管理员凭据。该提升权限仅用于该特定删除操作，不会以任何方式存储、记录或传输。
+  </p>
+
+  <h2>4. 网络活动</h2>
+  <p>
+    DeepClear 不产生任何网络请求。本应用没有服务器端组件、无分析 SDK，也没有任何会与互联网通信的第三方库。
+  </p>
+
+  <h2>5. 第三方服务</h2>
+  <p>我们不使用任何可能收集数据的第三方服务、SDK 或框架。</p>
+
+  <h2>6. 儿童隐私</h2>
+  <p>
+    DeepClear 不收集任何人的任何信息，包括 13 岁以下的儿童。
+  </p>
+
+  <h2>7. 政策变更</h2>
+  <p>
+    如果我们更改本政策，将更新上方的"最后更新"日期，并在此 URL 发布新版政策。在引入任何数据收集行为之前，我们绝不会在未发布更新政策的情况下进行。
+  </p>
+
+  <h2>8. 联系我们</h2>
+  <p>
+    如果您对本隐私政策有任何疑问，请通过支持页面提交问题，或发送邮件至
+    <a href="mailto:support@deepclear.app">support@deepclear.app</a>。
+  </p>
+</main>
+
+<footer>© 2025 DeepClear · <a href="index-zh.html">返回首页</a> · <a href="privacy.html">English</a></footer>
+</body>
+</html>

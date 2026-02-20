@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>使用帮助 – DeepClear</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0a0a0f; --card: #1a1a26; --border: rgba(255,255,255,0.08);
+      --accent: #6c63ff; --text: #e8e8f0; --muted: #8888a8; --radius: 16px;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB",
+                   "SF Pro Display", "Segoe UI", sans-serif;
+      background: var(--bg); color: var(--text); line-height: 1.8;
+    }
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; gap: 10px;
+      padding: 0 5%; height: 64px;
+      background: rgba(10,10,15,0.75); backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+    }
+    nav img { width: 28px; border-radius: 7px; }
+    nav .brand { font-weight: 700; font-size: 16px; color: var(--text); text-decoration: none; }
+    nav .right { margin-left: auto; display: flex; align-items: center; gap: 16px; }
+    nav .back { color: var(--muted); text-decoration: none; font-size: 14px; }
+    nav .back:hover { color: var(--text); }
+    .lang-switch {
+      display: flex; gap: 2px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--border);
+      border-radius: 100px; padding: 3px;
+    }
+    .lang-switch a {
+      padding: 4px 12px; border-radius: 100px;
+      font-size: 12px; font-weight: 600; text-decoration: none;
+      color: var(--muted); transition: all 0.2s;
+    }
+    .lang-switch a.active { background: var(--accent); color: #fff; }
+    .lang-switch a:not(.active):hover { color: var(--text); }
+
+    main { max-width: 680px; margin: 0 auto; padding: 112px 24px 80px; }
+    h1 { font-size: 2.2rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 12px; }
+    .sub { color: var(--muted); margin-bottom: 52px; }
+
+    .faq { display: flex; flex-direction: column; gap: 16px; }
+    details {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 20px 24px;
+    }
+    details[open] { border-color: rgba(108,99,255,0.4); }
+    summary {
+      font-weight: 700; font-size: 0.97rem; cursor: pointer;
+      list-style: none; display: flex; justify-content: space-between; align-items: center;
+    }
+    summary::after { content: "+"; color: var(--accent); font-size: 1.3rem; transition: transform 0.2s; }
+    details[open] summary::after { transform: rotate(45deg); }
+    .answer { color: var(--muted); font-size: 0.9rem; margin-top: 12px; }
+
+    .contact-box {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 32px; margin-top: 48px; text-align: center;
+    }
+    .contact-box h2 { font-size: 1.2rem; margin-bottom: 8px; }
+    .contact-box p { color: var(--muted); font-size: 0.9rem; margin-bottom: 20px; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 12px 28px; border-radius: 100px;
+      background: var(--accent); color: #fff;
+      text-decoration: none; font-weight: 600; font-size: 14px;
+    }
+    .btn:hover { background: #7d75ff; }
+    footer { text-align: center; padding: 40px 0 60px; color: var(--muted); font-size: 13px; }
+    a.text { color: var(--accent); }
+  </style>
+</head>
+<body>
+<nav>
+  <img src="icon.png" alt="图标" />
+  <a class="brand" href="index-zh.html">DeepClear</a>
+  <div class="right">
+    <a class="back" href="index-zh.html">← 返回首页</a>
+    <div class="lang-switch">
+      <a href="support.html">EN</a>
+      <a href="support-zh.html" class="active">中文</a>
+    </div>
+  </div>
+</nav>
+
+<main>
+  <h1>使用帮助</h1>
+  <p class="sub">常见问题解答与联系方式。</p>
+
+  <div class="faq">
+
+    <details>
+      <summary>如何扫描一个文件夹？</summary>
+      <p class="answer">
+        点击工具栏左侧的<strong>「选择目录」</strong>按钮，在弹出的文件选择器中选取任意文件夹，DeepClear 会立即开始扫描，并将所有内容按大小排序展示。
+      </p>
+    </details>
+
+    <details>
+      <summary>扫描很慢时可以暂停吗？</summary>
+      <p class="answer">
+        可以。点击工具栏上的<strong>「暂停」</strong>按钮即可随时中断扫描，点击<strong>「继续」</strong>从上次位置恢复，已扫描的数量会完整保留。
+      </p>
+    </details>
+
+    <details>
+      <summary>如何删除文件？</summary>
+      <p class="answer">
+        在分栏视图中<strong>右键点击</strong>任意文件或文件夹，选择<strong>「删除」</strong>，该项目会被移入废纸篓。如需恢复，在 Finder 废纸篓中找到它即可。
+      </p>
+    </details>
+
+    <details>
+      <summary>删除时为什么会弹出密码输入框？</summary>
+      <p class="answer">
+        部分系统目录受 macOS 沙盒保护。当普通删除失败时，DeepClear 会通过标准 macOS 系统弹窗请求管理员密码——这是删除这些文件的唯一方式。您的密码不会被存储或传输。
+      </p>
+    </details>
+
+    <details>
+      <summary>如何显示隐藏文件？</summary>
+      <p class="answer">
+        勾选工具栏上的<strong>「显示隐藏文件」</strong>复选框，列视图会立即刷新，无需重新扫描。
+      </p>
+    </details>
+
+    <details>
+      <summary>DeepClear 会把我的文件信息上传到网络吗？</summary>
+      <p class="answer">
+        绝对不会。DeepClear 是纯本地工具，没有任何网络请求，不含分析 SDK，也没有服务器端组件。详情请参阅<a class="text" href="privacy-zh.html">隐私政策</a>。
+      </p>
+    </details>
+
+    <details>
+      <summary>支持哪些 macOS 版本？</summary>
+      <p class="answer">
+        DeepClear 需要 macOS 12 Monterey 或更高版本，同时针对 Apple Silicon 和 Intel Mac 进行了优化。
+      </p>
+    </details>
+
+    <details>
+      <summary>列宽可以调整吗？</summary>
+      <p class="answer">
+        可以。将鼠标悬停在两列之间的分隔线上，光标会变为左右箭头，按住并拖动即可自由调整宽度，最小宽度为 200pt。
+      </p>
+    </details>
+
+  </div>
+
+  <div class="contact-box">
+    <h2>还有其他问题？</h2>
+    <p>发送邮件给我们，我们将在 1–2 个工作日内回复。</p>
+    <a class="btn" href="mailto:support@deepclear.app">✉ 联系支持</a>
+  </div>
+</main>
+
+<footer>
+  © 2025 DeepClear ·
+  <a class="text" href="index-zh.html">首页</a> ·
+  <a class="text" href="privacy-zh.html">隐私政策</a> ·
+  <a class="text" href="support.html">English</a>
+</footer>
+</body>
+</html>

@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DeepClear – Disk Space Analyzer for Mac</title>
+  <style>
+    /* ── Reset & Base ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0a0a0f;
+      --surface:   #12121a;
+      --card:      #1a1a26;
+      --border:    rgba(255,255,255,0.08);
+      --accent:    #6c63ff;
+      --accent2:   #ff6584;
+      --text:      #e8e8f0;
+      --muted:     #8888a8;
+      --radius:    16px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* ── Noise texture overlay ── */
+    body::before {
+      content: "";
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── Nav ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 5%;
+      height: 64px;
+      background: rgba(10,10,15,0.75);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-logo {
+      display: flex; align-items: center; gap: 10px;
+      font-weight: 700; font-size: 18px; color: var(--text);
+      text-decoration: none;
+    }
+
+    .nav-logo img { width: 32px; height: 32px; border-radius: 8px; }
+
+    .nav-right { display: flex; align-items: center; gap: 24px; }
+
+    .nav-links { display: flex; gap: 32px; }
+    .nav-links a {
+      color: var(--muted); text-decoration: none; font-size: 14px;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--text); }
+
+    .lang-switch {
+      display: flex; gap: 2px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--border);
+      border-radius: 100px; padding: 3px;
+    }
+    .lang-switch a {
+      padding: 4px 12px; border-radius: 100px;
+      font-size: 12px; font-weight: 600; text-decoration: none;
+      color: var(--muted); transition: all 0.2s;
+    }
+    .lang-switch a.active { background: var(--accent); color: #fff; }
+    .lang-switch a:not(.active):hover { color: var(--text); }
+
+    /* ── Hero ── */
+    .hero {
+      position: relative;
+      display: flex; flex-direction: column; align-items: center;
+      text-align: center;
+      padding: 140px 5% 80px;
+      overflow: hidden;
+    }
+
+    .hero-glow {
+      position: absolute; top: 60px; left: 50%;
+      transform: translateX(-50%);
+      width: 700px; height: 400px;
+      background: radial-gradient(ellipse at center, rgba(108,99,255,0.25) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(108,99,255,0.15);
+      border: 1px solid rgba(108,99,255,0.35);
+      border-radius: 100px;
+      padding: 5px 14px; font-size: 13px; color: #a9a4ff;
+      margin-bottom: 28px;
+    }
+    .hero-badge::before { content: "⚡"; }
+
+    .hero h1 {
+      font-size: clamp(2.4rem, 6vw, 4.2rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+      max-width: 720px;
+      background: linear-gradient(135deg, #ffffff 0%, #a9a4ff 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 20px;
+    }
+
+    .hero p {
+      font-size: clamp(1rem, 2vw, 1.2rem);
+      color: var(--muted);
+      max-width: 520px;
+      margin-bottom: 40px;
+    }
+
+    .hero-cta {
+      display: flex; gap: 14px; flex-wrap: wrap; justify-content: center;
+      margin-bottom: 64px;
+    }
+
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 13px 28px; border-radius: 100px;
+      font-size: 15px; font-weight: 600;
+      text-decoration: none; cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: var(--accent); color: #fff;
+      box-shadow: 0 0 24px rgba(108,99,255,0.4);
+    }
+    .btn-primary:hover { background: #7d75ff; box-shadow: 0 0 36px rgba(108,99,255,0.6); transform: translateY(-1px); }
+
+    .btn-ghost {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+    .btn-ghost:hover { background: rgba(255,255,255,0.1); }
+
+    /* ── App Icon ── */
+    .hero-icon {
+      width: 120px; height: 120px;
+      border-radius: 28px;
+      box-shadow: 0 24px 64px rgba(108,99,255,0.35), 0 0 0 1px rgba(255,255,255,0.08);
+      margin-bottom: 36px;
+    }
+
+    /* ── Screenshots ── */
+    .screenshots {
+      position: relative;
+      width: 100%; max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .screenshots-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .screenshot-card {
+      border-radius: var(--radius);
+      overflow: hidden;
+      border: 1px solid var(--border);
+      box-shadow: 0 16px 48px rgba(0,0,0,0.5);
+      transition: transform 0.3s;
+    }
+    .screenshot-card:hover { transform: translateY(-4px); }
+    .screenshot-card img { width: 100%; display: block; }
+
+    /* ── Section layout ── */
+    section { position: relative; padding: 100px 5%; }
+
+    .section-label {
+      font-size: 12px; font-weight: 700;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 12px;
+    }
+
+    .section-title {
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 800; letter-spacing: -0.02em;
+      line-height: 1.2; margin-bottom: 16px;
+      max-width: 600px;
+    }
+
+    .section-sub {
+      color: var(--muted); font-size: 1.05rem;
+      max-width: 520px; margin-bottom: 56px;
+    }
+
+    /* ── Features grid ── */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+    }
+
+    .feature-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .feature-card:hover {
+      border-color: rgba(108,99,255,0.4);
+      transform: translateY(-2px);
+    }
+
+    .feature-icon {
+      width: 44px; height: 44px;
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px;
+      margin-bottom: 16px;
+    }
+
+    .feature-card h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 8px; }
+    .feature-card p { color: var(--muted); font-size: 0.9rem; line-height: 1.65; }
+
+    /* ── How it works ── */
+    .steps {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      max-width: 600px;
+    }
+
+    .step {
+      display: flex; gap: 24px; position: relative;
+      padding-bottom: 40px;
+    }
+
+    .step:last-child { padding-bottom: 0; }
+
+    .step:not(:last-child)::before {
+      content: "";
+      position: absolute;
+      left: 19px; top: 44px;
+      width: 2px; bottom: 0;
+      background: linear-gradient(to bottom, rgba(108,99,255,0.4), transparent);
+    }
+
+    .step-num {
+      flex-shrink: 0;
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      background: var(--card);
+      border: 2px solid rgba(108,99,255,0.5);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; font-weight: 700; color: var(--accent);
+    }
+
+    .step-content h3 { font-size: 1rem; font-weight: 700; margin-bottom: 4px; }
+    .step-content p { color: var(--muted); font-size: 0.9rem; }
+
+    /* ── Privacy section ── */
+    .privacy-box {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 40px;
+      display: flex; gap: 32px; align-items: flex-start;
+      max-width: 760px;
+    }
+
+    .privacy-icon { font-size: 48px; flex-shrink: 0; }
+
+    .privacy-box h3 { font-size: 1.2rem; font-weight: 700; margin-bottom: 10px; }
+    .privacy-box p { color: var(--muted); font-size: 0.95rem; line-height: 1.7; }
+
+    /* ── Two-column layout ── */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: center;
+    }
+
+    /* ── Divider ── */
+    hr.divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 0 5%;
+    }
+
+    /* ── Footer ── */
+    footer {
+      padding: 48px 5% 64px;
+      display: flex; flex-direction: column; align-items: center;
+      gap: 16px; text-align: center;
+    }
+
+    footer .logo { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 16px; }
+    footer .logo img { width: 28px; height: 28px; border-radius: 7px; }
+    footer p { color: var(--muted); font-size: 13px; }
+    footer a { color: var(--muted); text-decoration: none; }
+    footer a:hover { color: var(--text); }
+
+    /* ── Responsive ── */
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+      .screenshots-grid { grid-template-columns: 1fr; }
+      .two-col { grid-template-columns: 1fr; gap: 40px; }
+      .privacy-box { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Navigation ── -->
+<nav>
+  <a class="nav-logo" href="#">
+    <img src="icon.png" alt="DeepClear icon" />
+    DeepClear
+  </a>
+  <div class="nav-right">
+    <div class="nav-links">
+      <a href="#features">Features</a>
+      <a href="#how-it-works">How It Works</a>
+      <a href="#privacy">Privacy</a>
+    </div>
+    <div class="lang-switch">
+      <a href="index.html" class="active">EN</a>
+      <a href="index-zh.html">中文</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ── Hero ── -->
+<section class="hero">
+  <div class="hero-glow"></div>
+
+  <img class="hero-icon" src="icon.png" alt="DeepClear App Icon" />
+
+  <div class="hero-badge">Available for macOS</div>
+
+  <h1>See exactly where your<br/>disk space is going</h1>
+
+  <p>
+    DeepClear scans your Mac at lightning speed and visualises every folder and file by size — so you can find and remove what's taking up the most space in seconds.
+  </p>
+
+  <div class="hero-cta">
+    <a href="#" class="btn btn-primary">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/></svg>
+      Download on the App Store
+    </a>
+    <a href="#features" class="btn btn-ghost">Learn More</a>
+  </div>
+
+  <!-- Screenshots -->
+  <div class="screenshots">
+    <div class="screenshots-grid">
+      <div class="screenshot-card">
+        <img src="img1.jpeg" alt="DeepClear screenshot – column browser" />
+      </div>
+      <div class="screenshot-card">
+        <img src="img2.jpeg" alt="DeepClear screenshot – size analysis" />
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- ── Features ── -->
+<section id="features">
+  <div class="section-label">Features</div>
+  <h2 class="section-title">Everything you need to reclaim your storage</h2>
+  <p class="section-sub">A focused set of tools designed to make disk cleanup fast, safe, and transparent.</p>
+
+  <div class="features-grid">
+
+    <div class="feature-card">
+      <div class="feature-icon" style="background:rgba(108,99,255,0.15);">🔍</div>
+      <h3>Blazing-Fast Scanning</h3>
+      <p>Multi-threaded engine saturates all CPU cores to scan millions of files in seconds. Pause or resume at any time without losing your progress.</p>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-icon" style="background:rgba(255,101,132,0.15);">📊</div>
+      <h3>Size-Sorted Column View</h3>
+      <p>Navigate your entire disk in a familiar, Finder-like column browser. Every entry is ranked by size so the biggest culprits are always at the top.</p>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-icon" style="background:rgba(52,211,153,0.15);">🗑️</div>
+      <h3>Safe Deletion</h3>
+      <p>Move files and folders to Trash with a single right-click. For system-protected paths, DeepClear requests the minimal admin permission required — nothing more.</p>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-icon" style="background:rgba(251,191,36,0.15);">👁️</div>
+      <h3>Hidden File Toggle</h3>
+      <p>Instantly show or hide dot-files and system folders without re-scanning. Ideal for developers and power users who need to inspect every byte.</p>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-icon" style="background:rgba(96,165,250,0.15);">↔️</div>
+      <h3>Resizable Columns</h3>
+      <p>Drag any column divider to customise the width. Long file names are never truncated unless you want them to be.</p>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-icon" style="background:rgba(167,139,250,0.15);">⚡</div>
+      <h3>Live Progress</h3>
+      <p>A real-time counter shows how many items have been scanned. The total size of the selected root folder updates instantly after every deletion.</p>
+    </div>
+
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- ── How it works ── -->
+<section id="how-it-works">
+  <div class="two-col">
+    <div>
+      <div class="section-label">How It Works</div>
+      <h2 class="section-title">From scan to clean in three steps</h2>
+      <p class="section-sub">No configuration. No subscription. Just open the app and start exploring.</p>
+
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <h3>Choose a folder</h3>
+            <p>Click "Select Directory" and pick any folder — your home folder, Downloads, or even the entire system volume.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <h3>Explore by size</h3>
+            <p>DeepClear builds a real-time column view sorted by size. Click into any subdirectory to drill deeper — columns expand automatically.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            <h3>Delete what you don't need</h3>
+            <p>Right-click any file or folder and choose Delete. It goes straight to Trash so you can recover it if needed.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="screenshot-card" style="max-width:460px; margin:0 auto;">
+        <img src="img1.jpeg" alt="DeepClear in use" />
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- ── Privacy ── -->
+<section id="privacy">
+  <div class="section-label">Privacy</div>
+  <h2 class="section-title">Your data never leaves your Mac</h2>
+  <p class="section-sub">DeepClear is a purely local tool with zero network activity.</p>
+
+  <div class="privacy-box">
+    <div class="privacy-icon">🔒</div>
+    <div>
+      <h3>No collection. No tracking. No cloud.</h3>
+      <p>
+        DeepClear reads the file system only to display sizes and names inside the app window.
+        It does not transmit any file names, paths, metadata, or usage statistics to any server — ever.
+        No account is required. No internet connection is needed.
+        Admin privileges are requested only when the macOS sandbox blocks a specific deletion, and only for that single operation.
+      </p>
+    </div>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- ── Footer ── -->
+<footer>
+  <div class="logo">
+    <img src="icon.png" alt="DeepClear icon" />
+    DeepClear
+  </div>
+  <p>© 2025 DeepClear. All rights reserved.</p>
+  <p>
+    <a href="privacy.html">Privacy Policy</a>
+    &nbsp;·&nbsp;
+    <a href="support.html">Support</a>
+    &nbsp;·&nbsp;
+    <a href="index-zh.html">中文</a>
+  </p>
+</footer>
+
+</body>
+</html>

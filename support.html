@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Support – DeepClear</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0a0a0f; --card: #1a1a26; --border: rgba(255,255,255,0.08);
+      --accent: #6c63ff; --text: #e8e8f0; --muted: #8888a8; --radius: 16px;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif;
+      background: var(--bg); color: var(--text); line-height: 1.7;
+    }
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; gap: 10px;
+      padding: 0 5%; height: 64px;
+      background: rgba(10,10,15,0.75); backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+    }
+    nav img { width: 28px; border-radius: 7px; }
+    nav span { font-weight: 700; font-size: 16px; }
+    nav .right { margin-left: auto; display: flex; align-items: center; gap: 16px; }
+    nav .back { color: var(--muted); text-decoration: none; font-size: 14px; }
+    nav .back:hover { color: var(--text); }
+    .lang-switch {
+      display: flex; gap: 2px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--border);
+      border-radius: 100px; padding: 3px;
+    }
+    .lang-switch a {
+      padding: 4px 12px; border-radius: 100px;
+      font-size: 12px; font-weight: 600; text-decoration: none;
+      color: var(--muted); transition: all 0.2s;
+    }
+    .lang-switch a.active { background: var(--accent); color: #fff; }
+    .lang-switch a:not(.active):hover { color: var(--text); }
+
+    main { max-width: 680px; margin: 0 auto; padding: 112px 24px 80px; }
+    h1 { font-size: 2.2rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 12px; }
+    .sub { color: var(--muted); margin-bottom: 52px; }
+
+    .faq { display: flex; flex-direction: column; gap: 16px; }
+    details {
+      background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 20px 24px;
+    }
+    details[open] { border-color: rgba(108,99,255,0.4); }
+    summary {
+      font-weight: 700; font-size: 0.97rem; cursor: pointer;
+      list-style: none; display: flex; justify-content: space-between; align-items: center;
+    }
+    summary::after { content: "+"; color: var(--accent); font-size: 1.3rem; transition: transform 0.2s; }
+    details[open] summary::after { transform: rotate(45deg); }
+    .answer { color: var(--muted); font-size: 0.9rem; margin-top: 12px; }
+
+    .contact-box {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 32px; margin-top: 48px; text-align: center;
+    }
+    .contact-box h2 { font-size: 1.2rem; margin-bottom: 8px; }
+    .contact-box p { color: var(--muted); font-size: 0.9rem; margin-bottom: 20px; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 12px 28px; border-radius: 100px;
+      background: var(--accent); color: #fff;
+      text-decoration: none; font-weight: 600; font-size: 14px;
+    }
+    .btn:hover { background: #7d75ff; }
+    footer { text-align: center; padding: 40px 0 60px; color: var(--muted); font-size: 13px; }
+    a.text { color: var(--accent); }
+  </style>
+</head>
+<body>
+<nav>
+  <img src="icon.png" alt="icon" />
+  <span>DeepClear</span>
+  <div class="right">
+    <a class="back" href="index.html">← Back</a>
+    <div class="lang-switch">
+      <a href="support.html" class="active">EN</a>
+      <a href="support-zh.html">中文</a>
+    </div>
+  </div>
+</nav>
+
+<main>
+  <h1>Support</h1>
+  <p class="sub">Frequently asked questions and contact information.</p>
+
+  <div class="faq">
+
+    <details>
+      <summary>How do I scan a folder?</summary>
+      <p class="answer">
+        Click the <strong>Select Directory</strong> button in the top toolbar, then choose any folder. DeepClear will start scanning immediately and display all contents sorted by size.
+      </p>
+    </details>
+
+    <details>
+      <summary>Can I pause a long scan?</summary>
+      <p class="answer">
+        Yes. Click the <strong>Pause</strong> button at any time. Click <strong>Resume</strong> to continue from where you left off. The scanned count is preserved.
+      </p>
+    </details>
+
+    <details>
+      <summary>How do I delete files?</summary>
+      <p class="answer">
+        Right-click any file or folder in the column view and choose <strong>Delete</strong>. Items are moved to Trash so you can recover them from Finder if needed.
+      </p>
+    </details>
+
+    <details>
+      <summary>Why does it ask for my password when deleting?</summary>
+      <p class="answer">
+        Some system folders are protected by macOS. When the normal deletion fails, DeepClear asks for your administrator password via a standard macOS prompt — this is the only way to delete those items. Your credentials are never stored or transmitted.
+      </p>
+    </details>
+
+    <details>
+      <summary>How do I show hidden files?</summary>
+      <p class="answer">
+        Check the <strong>Show Hidden Files</strong> checkbox in the toolbar. The columns refresh immediately without re-scanning.
+      </p>
+    </details>
+
+    <details>
+      <summary>Does DeepClear send any data to the internet?</summary>
+      <p class="answer">
+        No. DeepClear is entirely local. It makes zero network requests. See our <a class="text" href="privacy.html">Privacy Policy</a> for full details.
+      </p>
+    </details>
+
+    <details>
+      <summary>Which macOS versions are supported?</summary>
+      <p class="answer">
+        DeepClear requires macOS 12 Monterey or later. It is optimised for Apple Silicon and Intel Macs.
+      </p>
+    </details>
+
+  </div>
+
+  <div class="contact-box">
+    <h2>Still need help?</h2>
+    <p>Send us an email and we'll get back to you within 1–2 business days.</p>
+    <a class="btn" href="mailto:support@deepclear.app">✉ Email Support</a>
+  </div>
+</main>
+
+<footer>© 2025 DeepClear · <a class="text" href="index.html">Home</a> · <a class="text" href="privacy.html">Privacy Policy</a></footer>
+</body>
+</html>
