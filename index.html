@@ -352,19 +352,19 @@
 
   <img class="hero-icon" src="icon.png" alt="DeepClear App Icon" />
 
-  <div class="hero-badge">Available for macOS</div>
+  <div class="hero-badge">Built for macOS</div>
 
   <h1>See exactly where your<br/>disk space is going</h1>
 
   <p>
-    DeepClear scans your Mac at lightning speed and visualises every folder and file by size — so you can find and remove what's taking up the most space in seconds.
+    DeepClear analyzes the folders you choose, separates cleanup suggestions by risk, and shows exactly what is using your storage — all on your Mac.
   </p>
 
   <div class="hero-cta">
-    <a href="#" class="btn btn-primary">
+    <span class="btn btn-primary">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/></svg>
-      Download on the App Store
-    </a>
+      Coming Soon to the App Store
+    </span>
     <a href="#features" class="btn btn-ghost">Learn More</a>
   </div>
 
@@ -393,8 +393,8 @@
 
     <div class="feature-card">
       <div class="feature-icon" style="background:rgba(108,99,255,0.15);">🔍</div>
-      <h3>Blazing-Fast Scanning</h3>
-      <p>Multi-threaded engine saturates all CPU cores to scan millions of files in seconds. Pause or resume at any time without losing your progress.</p>
+      <h3>Responsive Local Scanning</h3>
+      <p>A multi-threaded engine analyzes file sizes and modification dates locally. Live progress and pause controls keep long scans understandable.</p>
     </div>
 
     <div class="feature-card">
@@ -405,20 +405,20 @@
 
     <div class="feature-card">
       <div class="feature-icon" style="background:rgba(52,211,153,0.15);">🗑️</div>
-      <h3>Safe Deletion</h3>
-      <p>Move files and folders to Trash with a single right-click. For system-protected paths, DeepClear requests the minimal admin permission required — nothing more.</p>
+      <h3>Cleanup by Risk</h3>
+      <p>Low-, medium-, and high-risk suggestions are clearly separated. Personal files are moved to Trash, while permanent cleanup always requires confirmation.</p>
     </div>
 
     <div class="feature-card">
       <div class="feature-icon" style="background:rgba(251,191,36,0.15);">👁️</div>
-      <h3>Hidden File Toggle</h3>
-      <p>Instantly show or hide dot-files and system folders without re-scanning. Ideal for developers and power users who need to inspect every byte.</p>
+      <h3>Hidden Item Control</h3>
+      <p>Choose whether dot-files and hidden folders are included in analysis. Symbolic links are skipped so scans remain inside the selected scope.</p>
     </div>
 
     <div class="feature-card">
       <div class="feature-icon" style="background:rgba(96,165,250,0.15);">↔️</div>
       <h3>Resizable Columns</h3>
-      <p>Drag any column divider to customise the width. Long file names are never truncated unless you want them to be.</p>
+      <p>Drag column dividers to customize the view, then move through folders level by level without losing context.</p>
     </div>
 
     <div class="feature-card">
@@ -438,14 +438,14 @@
     <div>
       <div class="section-label">How It Works</div>
       <h2 class="section-title">From scan to clean in three steps</h2>
-      <p class="section-sub">No configuration. No subscription. Just open the app and start exploring.</p>
+      <p class="section-sub">No account and no cloud service. Choose a folder and start exploring.</p>
 
       <div class="steps">
         <div class="step">
           <div class="step-num">1</div>
           <div class="step-content">
             <h3>Choose a folder</h3>
-            <p>Click "Select Directory" and pick any folder — your home folder, Downloads, or even the entire system volume.</p>
+            <p>Use Smart Cleanup to authorize your Home folder, or choose any folder in Space Analysis through the standard macOS file picker.</p>
           </div>
         </div>
 
@@ -460,8 +460,8 @@
         <div class="step">
           <div class="step-num">3</div>
           <div class="step-content">
-            <h3>Delete what you don't need</h3>
-            <p>Right-click any file or folder and choose Delete. It goes straight to Trash so you can recover it if needed.</p>
+            <h3>Review before cleaning</h3>
+            <p>Review every selection. Personal files go to Trash, and permanent cache cleanup runs only after a second confirmation.</p>
           </div>
         </div>
       </div>
@@ -491,7 +491,8 @@
         DeepClear reads the file system only to display sizes and names inside the app window.
         It does not transmit any file names, paths, metadata, or usage statistics to any server — ever.
         No account is required. No internet connection is needed.
-        Admin privileges are requested only when the macOS sandbox blocks a specific deletion, and only for that single operation.
+        Folder access is granted through the standard macOS picker and stored as a security-scoped bookmark.
+        DeepClear never requests administrator privileges.
       </p>
     </div>
   </div>
@@ -505,7 +506,7 @@
     <img src="icon.png" alt="DeepClear icon" />
     DeepClear
   </div>
-  <p>© 2025 DeepClear. All rights reserved.</p>
+  <p>© 2026 DeepClear. All rights reserved.</p>
   <p>
     <a href="privacy.html">Privacy Policy</a>
     &nbsp;·&nbsp;

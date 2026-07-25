@@ -70,7 +70,7 @@
 
 <main>
   <h1>Privacy Policy</h1>
-  <p class="date">Last updated: January 1, 2025</p>
+  <p class="date">Last updated: July 25, 2026</p>
 
   <p>
     This Privacy Policy describes how DeepClear ("we", "us", or "our") handles information when you use our macOS application ("App"). We are committed to protecting your privacy. In short: <strong>DeepClear collects no personal data whatsoever.</strong>
@@ -88,12 +88,12 @@
 
   <h2>2. Local File System Access</h2>
   <p>
-    The App requests access to folders you explicitly select via the macOS file picker. This access is used solely to read file and directory metadata (names, sizes, modification dates) and display it within the App. No data is ever read outside the folder you choose, and no data is written to your disk except when you explicitly delete a file (which moves it to Trash).
+    The App requests access only to folders you explicitly select through the standard macOS file picker. Smart Cleanup limits its scope to the Home folder you authorize and stores this access as a security-scoped bookmark. Access can be revoked in System Settings. Space Analysis reads only folders you choose. No file information leaves your Mac.
   </p>
 
-  <h2>3. Administrator Privileges</h2>
+  <h2>3. File Removal</h2>
   <p>
-    When deleting a file or folder that is protected by the macOS sandbox, the App may request administrator credentials via a standard macOS system prompt. This elevated privilege is used only for that specific delete operation and is not stored, logged, or transmitted in any way.
+    DeepClear never requests administrator or root privileges. Files removed through Large Files or File Browser are moved to macOS Trash. Cleanup candidates such as caches can be deleted permanently only after an explicit confirmation. The App cannot remove items outside the folder access you granted.
   </p>
 
   <h2>4. Network Activity</h2>
@@ -116,11 +116,11 @@
 
   <h2>8. Contact</h2>
   <p>
-    If you have any questions about this Privacy Policy, please open an issue on our support page or contact us at
-    <a href="mailto:support@deepclear.app">support@deepclear.app</a>.
+    If you have any questions about this Privacy Policy, please
+    <a href="https://github.com/zy765450034/DeepClear/issues">open a support issue on GitHub</a>.
   </p>
 </main>
 
-<footer>© 2025 DeepClear · <a href="index.html">Home</a></footer>
+<footer>© 2026 DeepClear · <a href="index.html">Home</a></footer>
 </body>
 </html>
