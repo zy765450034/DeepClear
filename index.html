@@ -1,520 +1,262 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>DeepClear – Disk Space Analyzer for Mac</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#07101f" />
+  <meta name="description" content="Purivo is a private, visual disk space analyzer and cleanup utility for Mac." />
+  <link rel="icon" href="icon.png" type="image/png" />
+  <title>Purivo — See your Mac clearly.</title>
   <style>
-    /* ── Reset & Base ── */
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     :root {
-      --bg:        #0a0a0f;
-      --surface:   #12121a;
-      --card:      #1a1a26;
-      --border:    rgba(255,255,255,0.08);
-      --accent:    #6c63ff;
-      --accent2:   #ff6584;
-      --text:      #e8e8f0;
-      --muted:     #8888a8;
-      --radius:    16px;
+      --bg: #070b16;
+      --surface: rgba(19, 28, 49, .72);
+      --surface-strong: #111b31;
+      --line: rgba(255,255,255,.11);
+      --text: #f7f9ff;
+      --muted: #aab5cc;
+      --faint: #73809a;
+      --blue: #50c8ff;
+      --indigo: #8276ff;
+      --violet: #b16cff;
+      --green: #54dfac;
+      --max: 1160px;
+      --radius: 26px;
     }
-
+    * { box-sizing: border-box; }
     html { scroll-behavior: smooth; }
-
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif;
-      background: var(--bg);
+      margin: 0;
       color: var(--text);
-      line-height: 1.6;
+      background: var(--bg);
+      font: 16px/1.65 -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif;
       overflow-x: hidden;
     }
-
-    /* ── Noise texture overlay ── */
     body::before {
-      content: "";
-      position: fixed; inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
-      pointer-events: none;
-      z-index: 0;
+      content: ""; position: fixed; inset: 0; pointer-events: none; z-index: -1;
+      background:
+        radial-gradient(circle at 78% 7%, rgba(102, 93, 255, .2), transparent 28rem),
+        radial-gradient(circle at 7% 33%, rgba(56, 192, 255, .1), transparent 26rem),
+        linear-gradient(180deg, #07101f, #070b16 50%, #090b16);
     }
-
-    /* ── Nav ── */
+    body::after {
+      content: ""; position: fixed; inset: 0; pointer-events: none; opacity: .13;
+      background-image: radial-gradient(rgba(255,255,255,.17) .55px, transparent .55px);
+      background-size: 5px 5px; mask-image: linear-gradient(#000, transparent 75%);
+    }
+    a { color: inherit; }
+    .shell { width: min(var(--max), calc(100% - 48px)); margin: 0 auto; }
     nav {
-      position: fixed; top: 0; left: 0; right: 0;
-      z-index: 100;
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 0 5%;
-      height: 64px;
-      background: rgba(10,10,15,0.75);
-      backdrop-filter: blur(20px);
-      border-bottom: 1px solid var(--border);
+      position: sticky; top: 0; z-index: 20; border-bottom: 1px solid var(--line);
+      background: rgba(7, 11, 22, .72); backdrop-filter: blur(20px) saturate(1.3);
     }
-
-    .nav-logo {
-      display: flex; align-items: center; gap: 10px;
-      font-weight: 700; font-size: 18px; color: var(--text);
-      text-decoration: none;
-    }
-
-    .nav-logo img { width: 32px; height: 32px; border-radius: 8px; }
-
-    .nav-right { display: flex; align-items: center; gap: 24px; }
-
-    .nav-links { display: flex; gap: 32px; }
-    .nav-links a {
-      color: var(--muted); text-decoration: none; font-size: 14px;
-      transition: color 0.2s;
-    }
+    .nav-inner { min-height: 72px; display: flex; align-items: center; gap: 28px; }
+    .brand { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; font-size: 20px; font-weight: 780; letter-spacing: -.04em; }
+    .brand img { width: 34px; height: 34px; border-radius: 10px; box-shadow: 0 8px 24px rgba(70, 181, 255, .22); }
+    .nav-links { display: flex; gap: 24px; margin-left: auto; }
+    .nav-links a { color: var(--muted); text-decoration: none; font-size: 14px; transition: color .2s ease; }
     .nav-links a:hover { color: var(--text); }
-
-    .lang-switch {
-      display: flex; gap: 2px;
-      background: rgba(255,255,255,0.06);
-      border: 1px solid var(--border);
-      border-radius: 100px; padding: 3px;
+    .language { display: inline-flex; gap: 2px; padding: 3px; border: 1px solid var(--line); border-radius: 999px; background: rgba(255,255,255,.05); }
+    .language button { border: 0; border-radius: 999px; padding: 5px 11px; color: var(--muted); background: transparent; cursor: pointer; font: 700 12px inherit; }
+    .language button.active { color: #fff; background: linear-gradient(135deg, var(--indigo), var(--violet)); }
+    .hero { position: relative; padding: 112px 0 96px; text-align: center; }
+    .hero::before { content: ""; position: absolute; width: 850px; height: 520px; left: 50%; top: -160px; transform: translateX(-50%); background: radial-gradient(ellipse, rgba(74, 190, 255, .2), transparent 68%); pointer-events: none; }
+    .hero > * { position: relative; }
+    .hero-icon { width: 104px; height: 104px; border-radius: 28px; box-shadow: 0 24px 80px rgba(74, 190, 255, .25); animation: float 5s ease-in-out infinite; }
+    @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
+    .eyebrow { display: inline-flex; align-items: center; gap: 8px; padding: 6px 11px; border: 1px solid rgba(127, 213, 255, .2); border-radius: 999px; color: #9ce6ff; background: rgba(66, 184, 255, .08); font-size: 12px; font-weight: 750; letter-spacing: .11em; text-transform: uppercase; }
+    .eyebrow::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--green); box-shadow: 0 0 14px var(--green); }
+    h1 { max-width: 850px; margin: 22px auto 18px; font-size: clamp(44px, 8vw, 86px); line-height: .99; letter-spacing: -.075em; }
+    .gradient { background: linear-gradient(120deg, #fff 18%, #96e4ff 50%, #a891ff 86%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .lead { max-width: 690px; margin: 0 auto 30px; color: var(--muted); font-size: 19px; }
+    .actions { display: flex; justify-content: center; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .cta, .ghost { display: inline-flex; align-items: center; gap: 8px; padding: 12px 20px; border-radius: 999px; text-decoration: none; font-weight: 750; transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease; }
+    .cta { background: linear-gradient(135deg, var(--indigo), var(--violet)); box-shadow: 0 14px 32px rgba(124, 116, 255, .28); }
+    .ghost { border: 1px solid var(--line); color: var(--muted); background: rgba(255,255,255,.04); }
+    .cta:hover, .ghost:hover { transform: translateY(-2px); }
+    .ghost:hover { border-color: rgba(255,255,255,.28); color: var(--text); }
+    .hero-note { margin-top: 18px; color: var(--faint); font-size: 13px; }
+    .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 16px auto 0; max-width: 840px; }
+    .metric { padding: 16px 12px; border: 1px solid var(--line); border-radius: 18px; background: rgba(255,255,255,.035); }
+    .metric strong { display: block; font-size: 20px; letter-spacing: -.03em; }
+    .metric span { color: var(--faint); font-size: 12px; }
+    section { padding: 88px 0; scroll-margin-top: 76px; }
+    .section-kicker { color: #8edfff; font-size: 12px; font-weight: 780; letter-spacing: .14em; text-transform: uppercase; }
+    h2 { margin: 8px 0 12px; font-size: clamp(32px, 5vw, 56px); line-height: 1.04; letter-spacing: -.06em; }
+    .section-intro { max-width: 680px; margin: 0; color: var(--muted); font-size: 17px; }
+    .feature-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 34px; }
+    .feature { position: relative; min-height: 228px; padding: 24px; overflow: hidden; border: 1px solid var(--line); border-radius: var(--radius); background: linear-gradient(145deg, rgba(255,255,255,.075), rgba(255,255,255,.018)); transition: transform .25s ease, border-color .25s ease, background .25s ease; }
+    .feature::after { content: ""; position: absolute; width: 130px; height: 130px; right: -45px; bottom: -55px; border-radius: 50%; background: radial-gradient(circle, rgba(78, 199, 255, .22), transparent 68%); }
+    .feature:hover { transform: translateY(-5px); border-color: rgba(141, 206, 255, .34); background: linear-gradient(145deg, rgba(255,255,255,.11), rgba(255,255,255,.025)); }
+    .feature-icon { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 13px; color: #b9eeff; background: linear-gradient(145deg, rgba(78, 201, 240, .2), rgba(130, 118, 255, .18)); font-size: 21px; }
+    .feature h3 { margin: 17px 0 7px; font-size: 18px; letter-spacing: -.02em; }
+    .feature p { margin: 0; color: var(--muted); font-size: 14px; }
+    .pill { display: inline-block; margin-top: 15px; padding: 4px 8px; border-radius: 999px; color: #a9eaff; background: rgba(80, 200, 255, .1); font-size: 11px; font-weight: 700; }
+    .shots { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 38px; }
+    .shot { overflow: hidden; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface-strong); box-shadow: 0 28px 80px rgba(0,0,0,.28); }
+    .shot img { display: block; width: 100%; height: auto; }
+    .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 34px; counter-reset: step; }
+    .step { position: relative; padding: 25px; border: 1px solid var(--line); border-radius: var(--radius); background: rgba(255,255,255,.035); }
+    .step::before { counter-increment: step; content: "0" counter(step); color: #a8a0ff; font-size: 13px; font-weight: 800; letter-spacing: .08em; }
+    .step h3 { margin: 16px 0 6px; font-size: 18px; }
+    .step p { margin: 0; color: var(--muted); font-size: 14px; }
+    .policy, .faq { max-width: 860px; margin-top: 30px; }
+    .policy { padding: 28px; border: 1px solid var(--line); border-radius: var(--radius); background: linear-gradient(145deg, rgba(255,255,255,.065), rgba(255,255,255,.018)); }
+    .policy h3 { margin: 22px 0 6px; color: #d8d4ff; font-size: 17px; }
+    .policy h3:first-child { margin-top: 0; }
+    .policy p, .policy li, .answer { color: var(--muted); font-size: 15px; }
+    .policy ul { padding-left: 20px; }
+    .faq { display: grid; gap: 12px; }
+    details { padding: 18px 22px; border: 1px solid var(--line); border-radius: 18px; background: rgba(255,255,255,.035); }
+    summary { cursor: pointer; font-weight: 730; }
+    .answer { padding-top: 10px; }
+    .release { display: grid; grid-template-columns: 1.1fr .9fr; gap: 18px; align-items: stretch; margin-top: 30px; }
+    .release-card { padding: 28px; border: 1px solid var(--line); border-radius: var(--radius); background: linear-gradient(135deg, rgba(78, 201, 240, .12), rgba(130, 118, 255, .1)); }
+    .release-card h3 { margin: 0 0 10px; font-size: 23px; letter-spacing: -.04em; }
+    .release-card p { margin: 0; color: var(--muted); }
+    .release-list { display: grid; gap: 9px; margin: 18px 0 0; padding: 0; list-style: none; }
+    .release-list li::before { content: "✓"; margin-right: 9px; color: var(--green); font-weight: 800; }
+    footer { padding: 54px 0 72px; border-top: 1px solid var(--line); color: var(--muted); }
+    .footer-inner { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+    .footer-inner .brand { color: var(--text); }
+    .footer-links { display: flex; gap: 18px; margin-left: auto; }
+    .footer-links a { text-decoration: none; font-size: 14px; }
+    [data-lang] { display: none; }
+    [data-lang].visible { display: block; }
+    span[data-lang].visible { display: inline; }
+    @media (max-width: 860px) {
+      .feature-grid { grid-template-columns: repeat(2, 1fr); }
+      .release { grid-template-columns: 1fr; }
     }
-    .lang-switch a {
-      padding: 4px 12px; border-radius: 100px;
-      font-size: 12px; font-weight: 600; text-decoration: none;
-      color: var(--muted); transition: all 0.2s;
-    }
-    .lang-switch a.active { background: var(--accent); color: #fff; }
-    .lang-switch a:not(.active):hover { color: var(--text); }
-
-    /* ── Hero ── */
-    .hero {
-      position: relative;
-      display: flex; flex-direction: column; align-items: center;
-      text-align: center;
-      padding: 140px 5% 80px;
-      overflow: hidden;
-    }
-
-    .hero-glow {
-      position: absolute; top: 60px; left: 50%;
-      transform: translateX(-50%);
-      width: 700px; height: 400px;
-      background: radial-gradient(ellipse at center, rgba(108,99,255,0.25) 0%, transparent 70%);
-      pointer-events: none;
-    }
-
-    .hero-badge {
-      display: inline-flex; align-items: center; gap: 6px;
-      background: rgba(108,99,255,0.15);
-      border: 1px solid rgba(108,99,255,0.35);
-      border-radius: 100px;
-      padding: 5px 14px; font-size: 13px; color: #a9a4ff;
-      margin-bottom: 28px;
-    }
-    .hero-badge::before { content: "⚡"; }
-
-    .hero h1 {
-      font-size: clamp(2.4rem, 6vw, 4.2rem);
-      font-weight: 800;
-      letter-spacing: -0.03em;
-      line-height: 1.1;
-      max-width: 720px;
-      background: linear-gradient(135deg, #ffffff 0%, #a9a4ff 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      margin-bottom: 20px;
-    }
-
-    .hero p {
-      font-size: clamp(1rem, 2vw, 1.2rem);
-      color: var(--muted);
-      max-width: 520px;
-      margin-bottom: 40px;
-    }
-
-    .hero-cta {
-      display: flex; gap: 14px; flex-wrap: wrap; justify-content: center;
-      margin-bottom: 64px;
-    }
-
-    .btn {
-      display: inline-flex; align-items: center; gap: 8px;
-      padding: 13px 28px; border-radius: 100px;
-      font-size: 15px; font-weight: 600;
-      text-decoration: none; cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .btn-primary {
-      background: var(--accent); color: #fff;
-      box-shadow: 0 0 24px rgba(108,99,255,0.4);
-    }
-    .btn-primary:hover { background: #7d75ff; box-shadow: 0 0 36px rgba(108,99,255,0.6); transform: translateY(-1px); }
-
-    .btn-ghost {
-      background: rgba(255,255,255,0.06);
-      border: 1px solid var(--border);
-      color: var(--text);
-    }
-    .btn-ghost:hover { background: rgba(255,255,255,0.1); }
-
-    /* ── App Icon ── */
-    .hero-icon {
-      width: 120px; height: 120px;
-      border-radius: 28px;
-      box-shadow: 0 24px 64px rgba(108,99,255,0.35), 0 0 0 1px rgba(255,255,255,0.08);
-      margin-bottom: 36px;
-    }
-
-    /* ── Screenshots ── */
-    .screenshots {
-      position: relative;
-      width: 100%; max-width: 1000px;
-      margin: 0 auto;
-    }
-
-    .screenshots-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-    }
-
-    .screenshot-card {
-      border-radius: var(--radius);
-      overflow: hidden;
-      border: 1px solid var(--border);
-      box-shadow: 0 16px 48px rgba(0,0,0,0.5);
-      transition: transform 0.3s;
-    }
-    .screenshot-card:hover { transform: translateY(-4px); }
-    .screenshot-card img { width: 100%; display: block; }
-
-    /* ── Section layout ── */
-    section { position: relative; padding: 100px 5%; }
-
-    .section-label {
-      font-size: 12px; font-weight: 700;
-      letter-spacing: 0.12em; text-transform: uppercase;
-      color: var(--accent); margin-bottom: 12px;
-    }
-
-    .section-title {
-      font-size: clamp(1.8rem, 4vw, 2.8rem);
-      font-weight: 800; letter-spacing: -0.02em;
-      line-height: 1.2; margin-bottom: 16px;
-      max-width: 600px;
-    }
-
-    .section-sub {
-      color: var(--muted); font-size: 1.05rem;
-      max-width: 520px; margin-bottom: 56px;
-    }
-
-    /* ── Features grid ── */
-    .features-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 20px;
-    }
-
-    .feature-card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 28px;
-      transition: border-color 0.2s, transform 0.2s;
-    }
-    .feature-card:hover {
-      border-color: rgba(108,99,255,0.4);
-      transform: translateY(-2px);
-    }
-
-    .feature-icon {
-      width: 44px; height: 44px;
-      border-radius: 12px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 22px;
-      margin-bottom: 16px;
-    }
-
-    .feature-card h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 8px; }
-    .feature-card p { color: var(--muted); font-size: 0.9rem; line-height: 1.65; }
-
-    /* ── How it works ── */
-    .steps {
-      display: flex;
-      flex-direction: column;
-      gap: 0;
-      max-width: 600px;
-    }
-
-    .step {
-      display: flex; gap: 24px; position: relative;
-      padding-bottom: 40px;
-    }
-
-    .step:last-child { padding-bottom: 0; }
-
-    .step:not(:last-child)::before {
-      content: "";
-      position: absolute;
-      left: 19px; top: 44px;
-      width: 2px; bottom: 0;
-      background: linear-gradient(to bottom, rgba(108,99,255,0.4), transparent);
-    }
-
-    .step-num {
-      flex-shrink: 0;
-      width: 40px; height: 40px;
-      border-radius: 50%;
-      background: var(--card);
-      border: 2px solid rgba(108,99,255,0.5);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 14px; font-weight: 700; color: var(--accent);
-    }
-
-    .step-content h3 { font-size: 1rem; font-weight: 700; margin-bottom: 4px; }
-    .step-content p { color: var(--muted); font-size: 0.9rem; }
-
-    /* ── Privacy section ── */
-    .privacy-box {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 40px;
-      display: flex; gap: 32px; align-items: flex-start;
-      max-width: 760px;
-    }
-
-    .privacy-icon { font-size: 48px; flex-shrink: 0; }
-
-    .privacy-box h3 { font-size: 1.2rem; font-weight: 700; margin-bottom: 10px; }
-    .privacy-box p { color: var(--muted); font-size: 0.95rem; line-height: 1.7; }
-
-    /* ── Two-column layout ── */
-    .two-col {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 80px;
-      align-items: center;
-    }
-
-    /* ── Divider ── */
-    hr.divider {
-      border: none;
-      border-top: 1px solid var(--border);
-      margin: 0 5%;
-    }
-
-    /* ── Footer ── */
-    footer {
-      padding: 48px 5% 64px;
-      display: flex; flex-direction: column; align-items: center;
-      gap: 16px; text-align: center;
-    }
-
-    footer .logo { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 16px; }
-    footer .logo img { width: 28px; height: 28px; border-radius: 7px; }
-    footer p { color: var(--muted); font-size: 13px; }
-    footer a { color: var(--muted); text-decoration: none; }
-    footer a:hover { color: var(--text); }
-
-    /* ── Responsive ── */
-    @media (max-width: 768px) {
-      .nav-links { display: none; }
-      .screenshots-grid { grid-template-columns: 1fr; }
-      .two-col { grid-template-columns: 1fr; gap: 40px; }
-      .privacy-box { flex-direction: column; }
+    @media (max-width: 680px) {
+      .shell { width: min(var(--max), calc(100% - 32px)); }
+      .nav-inner { gap: 12px; }
+      .nav-links { gap: 12px; }
+      .nav-links a { font-size: 12px; }
+      .language button { padding: 4px 8px; }
+      .hero { padding-top: 76px; }
+      .hero-icon { width: 88px; height: 88px; }
+      .metrics, .feature-grid, .shots, .steps { grid-template-columns: 1fr; }
+      .metrics { max-width: 380px; }
+      .footer-links { width: 100%; margin-left: 0; }
     }
   </style>
 </head>
 <body>
-
-<!-- ── Navigation ── -->
-<nav>
-  <a class="nav-logo" href="#">
-    <img src="icon.png" alt="DeepClear icon" />
-    DeepClear
-  </a>
-  <div class="nav-right">
-    <div class="nav-links">
-      <a href="#features">Features</a>
-      <a href="#how-it-works">How It Works</a>
-      <a href="#privacy">Privacy</a>
-    </div>
-    <div class="lang-switch">
-      <a href="index.html" class="active">EN</a>
-      <a href="index-zh.html">中文</a>
-    </div>
-  </div>
-</nav>
-
-<!-- ── Hero ── -->
-<section class="hero">
-  <div class="hero-glow"></div>
-
-  <img class="hero-icon" src="icon.png" alt="DeepClear App Icon" />
-
-  <div class="hero-badge">Built for macOS</div>
-
-  <h1>See exactly where your<br/>disk space is going</h1>
-
-  <p>
-    DeepClear analyzes the folders you choose, separates cleanup suggestions by risk, and shows exactly what is using your storage — all on your Mac.
-  </p>
-
-  <div class="hero-cta">
-    <span class="btn btn-primary">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/></svg>
-      Coming Soon to the App Store
-    </span>
-    <a href="#features" class="btn btn-ghost">Learn More</a>
-  </div>
-
-  <!-- Screenshots -->
-  <div class="screenshots">
-    <div class="screenshots-grid">
-      <div class="screenshot-card">
-        <img src="img1.jpeg" alt="DeepClear screenshot – column browser" />
+  <nav>
+    <div class="shell nav-inner">
+      <a class="brand" href="#top"><img src="icon.png" alt="Purivo icon" />Purivo</a>
+      <div class="nav-links">
+        <a href="#features"><span data-lang="en" class="visible">Features</span><span data-lang="zh">功能</span></a>
+        <a href="#privacy"><span data-lang="en" class="visible">Privacy</span><span data-lang="zh">隐私</span></a>
+        <a href="#support"><span data-lang="en" class="visible">Support</span><span data-lang="zh">支持</span></a>
+        <a href="https://apps.apple.com/cn/app/deepclear/id6759442012?mt=12" target="_blank" rel="noopener"><span data-lang="en" class="visible">Download</span><span data-lang="zh">下载</span></a>
       </div>
-      <div class="screenshot-card">
-        <img src="img2.jpeg" alt="DeepClear screenshot – size analysis" />
+      <div class="language" aria-label="Language">
+        <button type="button" data-language="en">EN</button><button type="button" data-language="zh">中文</button>
       </div>
     </div>
-  </div>
-</section>
+  </nav>
 
-<hr class="divider" />
-
-<!-- ── Features ── -->
-<section id="features">
-  <div class="section-label">Features</div>
-  <h2 class="section-title">Everything you need to reclaim your storage</h2>
-  <p class="section-sub">A focused set of tools designed to make disk cleanup fast, safe, and transparent.</p>
-
-  <div class="features-grid">
-
-    <div class="feature-card">
-      <div class="feature-icon" style="background:rgba(108,99,255,0.15);">🔍</div>
-      <h3>Responsive Local Scanning</h3>
-      <p>A multi-threaded engine analyzes file sizes and modification dates locally. Live progress and pause controls keep long scans understandable.</p>
-    </div>
-
-    <div class="feature-card">
-      <div class="feature-icon" style="background:rgba(255,101,132,0.15);">📊</div>
-      <h3>Size-Sorted Column View</h3>
-      <p>Navigate your entire disk in a familiar, Finder-like column browser. Every entry is ranked by size so the biggest culprits are always at the top.</p>
-    </div>
-
-    <div class="feature-card">
-      <div class="feature-icon" style="background:rgba(52,211,153,0.15);">🗑️</div>
-      <h3>Cleanup by Risk</h3>
-      <p>Low-, medium-, and high-risk suggestions are clearly separated. Personal files are moved to Trash, while permanent cleanup always requires confirmation.</p>
-    </div>
-
-    <div class="feature-card">
-      <div class="feature-icon" style="background:rgba(251,191,36,0.15);">👁️</div>
-      <h3>Hidden Item Control</h3>
-      <p>Choose whether dot-files and hidden folders are included in analysis. Symbolic links are skipped so scans remain inside the selected scope.</p>
-    </div>
-
-    <div class="feature-card">
-      <div class="feature-icon" style="background:rgba(96,165,250,0.15);">↔️</div>
-      <h3>Resizable Columns</h3>
-      <p>Drag column dividers to customize the view, then move through folders level by level without losing context.</p>
-    </div>
-
-    <div class="feature-card">
-      <div class="feature-icon" style="background:rgba(167,139,250,0.15);">⚡</div>
-      <h3>Live Progress</h3>
-      <p>A real-time counter shows how many items have been scanned. The total size of the selected root folder updates instantly after every deletion.</p>
-    </div>
-
-  </div>
-</section>
-
-<hr class="divider" />
-
-<!-- ── How it works ── -->
-<section id="how-it-works">
-  <div class="two-col">
-    <div>
-      <div class="section-label">How It Works</div>
-      <h2 class="section-title">From scan to clean in three steps</h2>
-      <p class="section-sub">No account and no cloud service. Choose a folder and start exploring.</p>
-
-      <div class="steps">
-        <div class="step">
-          <div class="step-num">1</div>
-          <div class="step-content">
-            <h3>Choose a folder</h3>
-            <p>Use Smart Cleanup to authorize your Home folder, or choose any folder in Space Analysis through the standard macOS file picker.</p>
-          </div>
+  <main id="top">
+    <section class="hero">
+      <div class="shell">
+        <img class="hero-icon" src="icon.png" alt="Purivo app icon" />
+        <div data-lang="en" class="visible">
+          <div class="eyebrow">Private Mac utility</div>
+          <h1>See your Mac<br /><span class="gradient">clearly.</span></h1>
+          <p class="lead">Purivo maps what is filling your Mac, explains what is safe to remove, and keeps every decision in your hands.</p>
+          <div class="actions"><a class="cta" href="https://apps.apple.com/cn/app/deepclear/id6759442012?mt=12" target="_blank" rel="noopener">Download on the Mac App Store <span aria-hidden="true">↗</span></a><a class="ghost" href="#features">Explore features</a></div>
+          <p class="hero-note">macOS 12+ · Apple Silicon & Intel · No account · No network activity</p>
         </div>
-
-        <div class="step">
-          <div class="step-num">2</div>
-          <div class="step-content">
-            <h3>Explore by size</h3>
-            <p>DeepClear builds a real-time column view sorted by size. Click into any subdirectory to drill deeper — columns expand automatically.</p>
-          </div>
+        <div data-lang="zh">
+          <div class="eyebrow">隐私优先的 Mac 工具</div>
+          <h1>看清你的 Mac，<br /><span class="gradient">放心清理。</span></h1>
+          <p class="lead">Purivo 帮你看清空间占用，解释哪些内容可以安全处理，并让每一步都由你确认。</p>
+          <div class="actions"><a class="cta" href="https://apps.apple.com/cn/app/deepclear/id6759442012?mt=12" target="_blank" rel="noopener">前往 App Store 下载 <span aria-hidden="true">↗</span></a><a class="ghost" href="#features">查看全部功能</a></div>
+          <p class="hero-note">macOS 12+ · 支持 Apple Silicon 与 Intel · 无账号 · 无网络请求</p>
         </div>
-
-        <div class="step">
-          <div class="step-num">3</div>
-          <div class="step-content">
-            <h3>Review before cleaning</h3>
-            <p>Review every selection. Personal files go to Trash, and permanent cache cleanup runs only after a second confirmation.</p>
-          </div>
+        <div class="metrics">
+          <div class="metric"><strong>6</strong><span data-lang="en" class="visible">cleaner modules</span><span data-lang="zh">大功能模块</span></div>
+          <div class="metric"><strong>100%</strong><span data-lang="en" class="visible">local analysis</span><span data-lang="zh">本机分析</span></div>
+          <div class="metric"><strong>0</strong><span data-lang="en" class="visible">accounts required</span><span data-lang="zh">账号要求</span></div>
+          <div class="metric"><strong>Trash</strong><span data-lang="en" class="visible">recoverable cleanup</span><span data-lang="zh">可恢复清理</span></div>
         </div>
       </div>
-    </div>
+    </section>
 
-    <div>
-      <div class="screenshot-card" style="max-width:460px; margin:0 auto;">
-        <img src="img1.jpeg" alt="DeepClear in use" />
+    <section id="features">
+      <div class="shell">
+        <div data-lang="en" class="visible"><div class="section-kicker">Everything in one place</div><h2>One calm workspace<br />for a cleaner Mac.</h2><p class="section-intro">From everyday cache cleanup to developer-heavy machines, Purivo brings the tools together without hiding what will happen next.</p></div>
+        <div data-lang="zh"><div class="section-kicker">完整工具集合</div><h2>一个清晰的工作区，<br />管理整台 Mac。</h2><p class="section-intro">从日常缓存清理到开发者机器维护，Purivo 把工具集中起来，并明确告诉你下一步会发生什么。</p></div>
+        <div class="feature-grid">
+          <article class="feature"><div class="feature-icon">✦</div><div data-lang="en" class="visible"><h3>Smart Cleanup</h3><p>Review caches, logs, temporary files, old downloads, and other cleanup candidates with risk-aware grouping.</p><span class="pill">Low → High risk</span></div><div data-lang="zh"><h3>智能清理</h3><p>按风险查看缓存、日志、临时文件、旧下载等清理候选项，先分析，再确认。</p><span class="pill">低 → 高风险</span></div></article>
+          <article class="feature"><div class="feature-icon">⌘</div><div data-lang="en" class="visible"><h3>Developer Junk</h3><p>Find Xcode derived data, Simulator leftovers, Docker data, Node.js caches, and Homebrew residue.</p><span class="pill">Built for dev machines</span></div><div data-lang="zh"><h3>开发者垃圾</h3><p>集中检查 Xcode 构建数据、Simulator 残留、Docker 数据、Node.js 缓存和 Homebrew 残留。</p><span class="pill">开发者专用</span></div></article>
+          <article class="feature"><div class="feature-icon">⌫</div><div data-lang="en" class="visible"><h3>Complete Uninstaller</h3><p>Choose an app, inspect its bundle and recognizable user leftovers, then move the selected items to Trash.</p><span class="pill">App + leftovers</span></div><div data-lang="zh"><h3>彻底卸载应用</h3><p>选择应用后查看应用包和可识别的用户残留，确认后统一移入废纸篓。</p><span class="pill">应用包 + 残留</span></div></article>
+          <article class="feature"><div class="feature-icon">⌁</div><div data-lang="en" class="visible"><h3>Duplicates & Large Files</h3><p>Find duplicate content and rank the heaviest files, with previews and recoverable Trash actions.</p><span class="pill">Find space fast</span></div><div data-lang="zh"><h3>重复文件与大文件</h3><p>扫描重复内容并按大小排序，配合预览和可恢复的废纸篓操作快速释放空间。</p><span class="pill">快速找到占用</span></div></article>
+          <article class="feature"><div class="feature-icon">◌</div><div data-lang="en" class="visible"><h3>Space Lens</h3><p>Explore a visual map of file categories and drill from the overview into the folders that matter.</p><span class="pill">Visual storage map</span></div><div data-lang="zh"><h3>Space Lens 空间可视化</h3><p>通过文件类型地图了解空间结构，从概览逐层深入到真正占用空间的目录。</p><span class="pill">可视化空间地图</span></div></article>
+          <article class="feature"><div class="feature-icon">↻</div><div data-lang="en" class="visible"><h3>Background Items</h3><p>Review current-user LaunchAgents and disable selected startup tasks when the direct build has the needed access.</p><span class="pill">Startup control</span></div><div data-lang="zh"><h3>启动项与后台项目</h3><p>查看当前用户的 LaunchAgents；直装版具备所需权限时，可停用选中的启动任务。</p><span class="pill">启动项管理</span></div></article>
+        </div>
       </div>
-    </div>
-  </div>
-</section>
+    </section>
 
-<hr class="divider" />
+    <section id="overview">
+      <div class="shell">
+        <div data-lang="en" class="visible"><div class="section-kicker">See first</div><h2>Understand the space<br />before you touch it.</h2><p class="section-intro">A visual map, large-file ranking, and Finder-style browser work together so every cleanup decision has context.</p></div>
+        <div data-lang="zh"><div class="section-kicker">先看清，再处理</div><h2>动手清理之前，<br />先了解空间。</h2><p class="section-intro">可视化空间地图、大文件排序和 Finder 风格目录浏览协同工作，让每一次清理都有依据。</p></div>
+        <div class="shots"><div class="shot"><img src="img1.jpeg" alt="Purivo folder browser" loading="lazy" /></div><div class="shot"><img src="img2.jpeg" alt="Purivo storage analysis" loading="lazy" /></div><div class="shot"><img src="img3.jpeg" alt="Purivo app uninstaller" loading="lazy" /></div><div class="shot"><img src="img4.jpeg" alt="Purivo background items" loading="lazy" /></div></div>
+        <div class="steps">
+          <div class="step"><div data-lang="en" class="visible"><h3>Authorize once</h3><p>Choose the Home folder or a specific directory in the standard macOS picker. The permission is saved as a security-scoped bookmark.</p></div><div data-lang="zh"><h3>一次授权</h3><p>在 macOS 标准选择器中选择 Home 文件夹或具体目录，权限会保存为安全作用域书签。</p></div></div>
+          <div class="step"><div data-lang="en" class="visible"><h3>Scan in place</h3><p>Purivo analyzes locally and skips symbolic links, so the scan stays inside the scope you selected.</p></div><div data-lang="zh"><h3>本机扫描</h3><p>Purivo 在本机分析并跳过符号链接，扫描范围始终不会超出你的授权目录。</p></div></div>
+          <div class="step"><div data-lang="en" class="visible"><h3>Confirm the action</h3><p>Review paths, sizes, and risk before moving selected items to macOS Trash. Nothing is permanently deleted by default.</p></div><div data-lang="zh"><h3>确认后处理</h3><p>查看路径、大小和风险后，再把选中的项目移入 macOS 废纸篓，默认不会永久删除。</p></div></div>
+        </div>
+      </div>
+    </section>
 
-<!-- ── Privacy ── -->
-<section id="privacy">
-  <div class="section-label">Privacy</div>
-  <h2 class="section-title">Your data never leaves your Mac</h2>
-  <p class="section-sub">DeepClear is a purely local tool with zero network activity.</p>
+    <section id="privacy">
+      <div class="shell">
+        <div data-lang="en" class="visible"><div class="section-kicker">Privacy policy</div><h2>Your files stay yours.</h2><p class="section-intro">Purivo does not collect personal data. Analysis happens inside the folders you authorize through macOS.</p><div class="policy"><h3>What Purivo does not collect</h3><p>Purivo does not collect, store, transmit, or share file names, paths, sizes, metadata, scan results, usage analytics, or account information.</p><h3>How access works</h3><p>The Mac App Store build uses App Sandbox and the standard macOS folder picker. Purivo stores a security-scoped bookmark and works only inside that scope. The direct build may request native macOS authorization for protected app bundles.</p><h3>Deletion safety</h3><p>Scanning never changes files. Selected files are moved to macOS Trash. Permanent cleanup requires an explicit confirmation and stays within the authorized scope.</p><p><strong>Last updated: July 26, 2026</strong></p></div></div>
+        <div data-lang="zh"><div class="section-kicker">隐私政策</div><h2>你的文件，只属于你。</h2><p class="section-intro">Purivo 不收集个人数据。所有分析都发生在你通过 macOS 授权的目录内。</p><div class="policy"><h3>Purivo 不收集什么</h3><p>Purivo 不会收集、存储、传输或共享文件名、路径、大小、元数据、扫描结果、使用统计或账号信息。</p><h3>目录访问如何工作</h3><p>Mac App Store 版使用 App Sandbox 和 macOS 标准文件选择器。Purivo 保存安全作用域书签，只在授权范围内工作；直装版处理受保护应用包时可能请求 macOS 原生授权。</p><h3>删除安全</h3><p>扫描不会修改文件。选中的文件只会移入 macOS 废纸篓；永久清理必须经过明确确认，并且严格限制在授权范围内。</p><p><strong>最后更新：2026 年 7 月 26 日</strong></p></div></div>
+      </div>
+    </section>
 
-  <div class="privacy-box">
-    <div class="privacy-icon">🔒</div>
-    <div>
-      <h3>No collection. No tracking. No cloud.</h3>
-      <p>
-        DeepClear reads the file system only to display sizes and names inside the app window.
-        It does not transmit any file names, paths, metadata, or usage statistics to any server — ever.
-        No account is required. No internet connection is needed.
-        Folder access is granted through the standard macOS picker and stored as a security-scoped bookmark.
-        DeepClear never requests administrator privileges.
-      </p>
-    </div>
-  </div>
-</section>
+    <section id="release">
+      <div class="shell">
+        <div data-lang="en" class="visible"><div class="section-kicker">Latest update</div><h2>Purivo 2.1, built<br />for the whole Mac.</h2><p class="section-intro">The latest release brings the cleaner modules into one focused workspace, with a separate sandboxed Store build and a full direct-distribution build.</p></div>
+        <div data-lang="zh"><div class="section-kicker">最新版本</div><h2>Purivo 2.1，<br />覆盖整台 Mac。</h2><p class="section-intro">最新版本把完整清理模块集中到一个工作区，并区分沙盒上架版与功能完整的直装版。</p></div>
+        <div class="release">
+          <div class="release-card"><div data-lang="en" class="visible"><h3>What’s new</h3><p>Faster local scanning, refreshed navigation, clearer uninstall details, and region-based localization.</p><ul class="release-list"><li>Smart Cleanup and developer residue groups</li><li>App bundle + recognizable leftovers review</li><li>Duplicates, Large Files, Space Lens, and Background Items</li><li>English outside China/Hong Kong/Macau; Simplified Chinese there</li></ul></div><div data-lang="zh"><h3>本次更新</h3><p>更快的本机扫描、更清晰的导航、完整卸载详情，以及按地区自动选择语言。</p><ul class="release-list"><li>智能清理与开发者垃圾分类</li><li>应用包和可识别残留审查</li><li>重复文件、大文件、Space Lens、后台项目</li><li>中国大陆/港澳简体中文，其它地区英文</li></ul></div></div>
+          <div class="release-card"><div data-lang="en" class="visible"><h3>Two distribution modes</h3><p><strong>Mac App Store:</strong> sandboxed, user-selected folder access, no administrator escalation. <strong>Direct:</strong> full app manager access for protected bundles.</p><a class="cta" href="https://apps.apple.com/cn/app/deepclear/id6759442012?mt=12" target="_blank" rel="noopener">View on the Mac App Store ↗</a></div><div data-lang="zh"><h3>两种发行版本</h3><p><strong>Mac App Store：</strong>启用沙盒，使用用户选择的目录权限，不请求管理员提权。<strong>直装版：</strong>为受保护应用包提供完整应用管理能力。</p><a class="cta" href="https://apps.apple.com/cn/app/deepclear/id6759442012?mt=12" target="_blank" rel="noopener">在 App Store 查看 ↗</a></div></div>
+        </div>
+      </div>
+    </section>
 
-<hr class="divider" />
+    <section id="support">
+      <div class="shell">
+        <div data-lang="en" class="visible"><div class="section-kicker">Support</div><h2>Questions, answered.</h2><p class="section-intro">A few practical notes for getting the most from Purivo.</p><div class="faq"><details><summary>Why does Purivo need folder access?</summary><div class="answer">The Mac App Store sandbox requires you to explicitly choose the folder an app may access. Purivo stores that permission as a security-scoped bookmark.</div></details><details><summary>What does the uninstaller remove?</summary><div class="answer">It reviews the selected app bundle and recognizable user-level support files, preferences, caches, saved state, containers, and related launch-agent entries. You confirm the final Trash action.</div></details><details><summary>Does Purivo send any data to the internet?</summary><div class="answer">No. Purivo is entirely local and makes no network requests.</div></details><details><summary>Which macOS versions are supported?</summary><div class="answer">Purivo requires macOS 12 Monterey or later and supports both Apple Silicon and Intel Macs.</div></details></div></div>
+        <div data-lang="zh"><div class="section-kicker">使用帮助</div><h2>常见问题，都有答案。</h2><p class="section-intro">几条实用说明，帮助你更好地使用 Purivo。</p><div class="faq"><details><summary>为什么 Purivo 需要目录权限？</summary><div class="answer">Mac App Store 沙盒要求你明确选择应用可以访问的目录。Purivo 会将权限保存为安全作用域书签。</div></details><details><summary>卸载应用会处理什么？</summary><div class="answer">Purivo 会查看应用包以及用户级支持文件、偏好设置、缓存、保存状态、容器和相关启动项；你确认后才会移入废纸篓。</div></details><details><summary>Purivo 会把数据上传到网络吗？</summary><div class="answer">不会。Purivo 完全在本机运行，不会发起网络请求。</div></details><details><summary>支持哪些 macOS 版本？</summary><div class="answer">Purivo 需要 macOS 12 Monterey 或更高版本，同时支持 Apple Silicon 和 Intel Mac。</div></details></div></div>
+      </div>
+    </section>
+  </main>
 
-<!-- ── Footer ── -->
-<footer>
-  <div class="logo">
-    <img src="icon.png" alt="DeepClear icon" />
-    DeepClear
-  </div>
-  <p>© 2026 DeepClear. All rights reserved.</p>
-  <p>
-    <a href="privacy.html">Privacy Policy</a>
-    &nbsp;·&nbsp;
-    <a href="support.html">Support</a>
-    &nbsp;·&nbsp;
-    <a href="index-zh.html">中文</a>
-  </p>
-</footer>
+  <footer><div class="shell footer-inner"><a class="brand" href="#top"><img src="icon.png" alt="Purivo icon" />Purivo</a><span>© 2026 Purivo</span><div class="footer-links"><a href="#features"><span data-lang="en" class="visible">Features</span><span data-lang="zh">功能</span></a><a href="#privacy"><span data-lang="en" class="visible">Privacy</span><span data-lang="zh">隐私政策</span></a><a href="#support"><span data-lang="en" class="visible">Support</span><span data-lang="zh">使用帮助</span></a></div></div></footer>
 
+  <script>
+    (() => {
+      const buttons = [...document.querySelectorAll('[data-language]')];
+      const blocks = [...document.querySelectorAll('[data-lang]')];
+      const choose = (language, updateUrl = true) => {
+        const lang = language === 'zh' ? 'zh' : 'en';
+        document.documentElement.lang = lang === 'zh' ? 'zh-Hans' : 'en';
+        blocks.forEach((block) => block.classList.toggle('visible', block.dataset.lang === lang));
+        buttons.forEach((button) => button.classList.toggle('active', button.dataset.language === lang));
+        if (updateUrl) history.replaceState(null, '', `${location.pathname}?lang=${lang}${location.hash}`);
+      };
+      const queryLanguage = new URLSearchParams(location.search).get('lang');
+      const initial = queryLanguage || (/^zh/i.test(navigator.language) ? 'zh' : 'en');
+      buttons.forEach((button) => button.addEventListener('click', () => choose(button.dataset.language)));
+      choose(initial, false);
+    })();
+  </script>
 </body>
 </html>
